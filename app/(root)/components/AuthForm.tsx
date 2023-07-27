@@ -1,24 +1,38 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import axios from "axios";
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import AuthSocialButton from "./AuthSocialButton";
 
 import { BsGithub, BsGoogle } from "react-icons/bs";
+import { toast } from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm = () => {
+  const session = useSession();
+  const router = useRouter();
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
+    }
+  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
       setVariant("REGISTER");
+      reset();
     } else {
       setVariant("LOGIN");
+      reset();
     }
   }, [variant]);
 
@@ -26,6 +40,7 @@ const AuthForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FieldValues>({
     defaultValues: {
       name: "",
@@ -37,18 +52,47 @@ const AuthForm = () => {
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
     if (variant === "REGISTER") {
-      // axios register
+      axios
+        .post("/api/register", data)
+        .then(() => signIn("credentials", data))
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
 
     if (variant === "LOGIN") {
-      // NextAuth Sign in
+      signIn("credentials", { ...data, redirect: false })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials");
+          }
+          if (callback?.ok && !callback?.error) {
+            toast.success("Logged in successfully");
+            router.push("/users");
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   };
 
   const socialAction = (action: string) => {
     setIsLoading(true);
-
-    //nextAuth Social Sign IN
+    signIn(action, {
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials");
+        }
+        if (callback?.ok && !callback?.error) {
+          toast.success("Logged in successfully");
+          router.push("/users");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -56,7 +100,13 @@ const AuthForm = () => {
       <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {variant === "REGISTER" && (
-            <Input id="name" label="Name" register={register} errors={errors} disabled={isLoading} />
+            <Input
+              id="name"
+              label="Name"
+              register={register}
+              errors={errors}
+              disabled={isLoading}
+            />
           )}
           <Input
             id="email"
