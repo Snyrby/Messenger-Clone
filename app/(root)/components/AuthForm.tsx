@@ -110,7 +110,7 @@ const AuthForm = () => {
           )}
           <Input
             id="email"
-            label="Email Adrress"
+            label="Email Address"
             type="email"
             register={register}
             errors={errors}
