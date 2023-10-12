@@ -26,9 +26,9 @@ export async function DELETE(req: Request, { params }: { params: IParams }) {
         conversationId,
         imageId: {
           isSet: true,
-        }
+        },
       },
-    })
+    });
     if (!existingConversation) {
       return new NextResponse("Invalid Id", { status: 400 });
     }
@@ -40,7 +40,7 @@ export async function DELETE(req: Request, { params }: { params: IParams }) {
         },
       },
     });
-    return NextResponse.json(allMessages);
+    return NextResponse.json(allMessages, { status: 200 });
   } catch (error: any) {
     console.log("ERROR_CONVERSATION_DELETE", error);
     return new NextResponse("Internal Server Error", { status: 500 });

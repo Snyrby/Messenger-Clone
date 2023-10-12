@@ -63,7 +63,7 @@ const ConfirmModal = ({ isOpen, onClose }: ConfirmModalProps) => {
       </div>
       <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
         <Button type="button" disabled={isLoading} danger onClick={onDelete}>
-          Delete
+          {isLoading ? "Deleting" : "Delete"}
         </Button>
         <Button type="button" disabled={isLoading} secondary onClick={onClose}>
           Cancel
