@@ -29,7 +29,6 @@ const ConfirmModal = ({ isOpen, onClose }: ConfirmModalProps) => {
     axios
       .delete(`/api/conversations/${conversationId}`)
       .then((response: AxiosResponse) => {
-        console.log(response.data);
         response.data.map((message: messageProps) => {
           deleteImage(message.imageId)
         })

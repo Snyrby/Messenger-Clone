@@ -1,5 +1,6 @@
 import getCurrentUser from "@/actions/getCurrentUser";
 import prismadb from "@/lib/prismadb";
+import { pusherServer } from "@/lib/pusher";
 import { NextResponse } from "next/server";
 
 type tParams = {
@@ -50,6 +51,19 @@ export async function POST(req: Request, { params }: { params: tParams }) {
         },
       },
     });
+    await pusherServer.trigger(currentUser.email, "conversation:update", {
+      id: conversationId,
+      messages: [updatedMessage],
+    });
+
+    if (lastMessage.seenIds.indexOf(currentUser.id) === -1) {
+      return NextResponse.json(conversation);
+    }
+    await pusherServer.trigger(
+      conversationId!,
+      "message:update",
+      updatedMessage
+    );
     return NextResponse.json(updatedMessage);
   } catch (error: any) {
     console.log("ERROR_MESSAGES_SEEN", error);
