@@ -55,7 +55,7 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
     };
     const removeHandler = (conversation: FullConversationType) => {
       setItems((current) => {
-        return [...current.filter((convo) => convo.id === conversation.id)];
+        return [...current.filter((convo) => convo.id !== conversation.id)];
       });
       if (conversationId === conversation.id) {
         router.push("/conversations");

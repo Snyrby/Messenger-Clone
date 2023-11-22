@@ -48,7 +48,7 @@ const Body = ({ initialMessages }: BodyProps) => {
     };
 
     pusherClient.bind("messages:new", messageHandler);
-    pusherClient.bind("messages:update", updateMessageHandler);
+    pusherClient.bind("message:update", updateMessageHandler);
     return () => {
       pusherClient.unsubscribe(conversationId);
       pusherClient.unbind("messages:new", messageHandler);

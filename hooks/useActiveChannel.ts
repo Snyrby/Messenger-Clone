@@ -12,9 +12,9 @@ const useActiveChannel = () => {
       channel = pusherClient.subscribe("presence-messenger");
       setActiveChannel(channel);
     }
-    channel.bind("pusher:subscription_succeeded", (memebers: Members) => {
+    channel.bind("pusher:subscription_succeeded", (members: Members) => {
       const initialMembers: string[] = [];
-      memebers.each((member: Record<string, any>) =>
+      members.each((member: Record<string, any>) =>
         initialMembers.push(member.id)
       );
       set(initialMembers);
